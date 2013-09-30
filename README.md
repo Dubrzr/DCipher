@@ -29,8 +29,17 @@ Utilisation
     ...
     
 
-Installation
-============
+Git
+===
+Pour cloner un repo, choisissez un repertoire local, dedans ouvrez une fenêtre de commande puis :
+
+    $ git clone https://github.com/Dsensei/dev997.git -b branch_name /some/folder
+    Par exemple si on veux cloner le repo dev997 et la branche dev dans le dossier actuel :
+    "git clone https://github.com/Dsensei/dev997.git -b dev"
+
+
+Installation OCaml
+==================
 
 Debian
 ------
