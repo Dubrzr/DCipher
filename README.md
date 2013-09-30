@@ -72,3 +72,9 @@ Windows
     http://algo-td.infoprepa.epita.fr/caml/installation.php
     http://blogperso.univ-rennes1.fr/san.vu-ngoc/public/divers/installer_ocaml_sdl.pdf
     
+Emacs
+=====
+
+Mémo :
+
+    http://www.tuteurs.ens.fr/unix/editeurs/emacs_memo.html
