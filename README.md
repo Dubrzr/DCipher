@@ -50,7 +50,7 @@ Debian
         SDL :
             libsdl-ocaml-dev
         
-        GTK2 :
+        GTK+ 2:
             liblablgtk2-ocaml
             liblablgtk2-ocaml-dev
         
