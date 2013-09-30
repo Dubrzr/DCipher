@@ -29,8 +29,8 @@ Utilisation
     ...
     
 
-Installation (Tutos)
-====================
+Installation
+============
 
 Debian
 ------
