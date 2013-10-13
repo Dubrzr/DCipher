@@ -2,7 +2,7 @@
  * File: image.ml
  * Description: image object
  * Date: 09-10-2013
- * Author: Nils Layet
+ * Author: CodeBreaker
  *)
 
 class image w h =
@@ -48,7 +48,31 @@ object (s)
     src <- Sdlgfx.rotozoomSurfaceXY src 0. x y false
 
   method blit_on ?(pos=Utils.rect_zero) dst =
-    Sdlvideo.blit_surface ~src:src ~dst:dst ~dst_rect:pos ()
+    Sdlvideo.blit_surface ~src:src ~dst:(dst#get_src) ~dst_rect:pos ()
+
+  method blit_center_on dst =
+    let pos =
+      {
+        Sdlvideo.r_x = dst#get_w / 2 - s#get_w / 2;
+        Sdlvideo.r_y = dst#get_h / 2 - s#get_h / 2;
+        Sdlvideo.r_w = 0; Sdlvideo.r_h = 0;
+      } in
+    s#blit_on ~pos:pos dst;
+
+  method clip rect =
+    let w = rect.Sdlvideo.r_w and h = rect.Sdlvideo.r_h in
+    let nsrc = Sdlvideo.create_RGB_surface [`HWSURFACE] w h 16
+      Int32.zero Int32.zero Int32.zero Int32.zero in
+    Sdlvideo.blit_surface ~src_rect:rect ~src:src ~dst:nsrc ();
+    src <- nsrc
+
+  method fill c =
+    Sdlvideo.fill_rect src (Sdlvideo.map_RGB src c)
+
+  method duplicate =
+    let im = new image s#get_w s#get_h in
+    s#blit_on im;
+    im
 
 end
 
