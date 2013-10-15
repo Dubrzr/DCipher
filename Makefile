@@ -6,6 +6,10 @@ SOURCES = utils.ml
 SOURCES += matrix.ml
 SOURCES += image.ml
 SOURCES += convert.ml
+SOURCES += treatment.ml
+SOURCES += rotation.ml
+SOURCES += segm.ml
+SOURCES += preproc.ml
 SOURCES += main.ml
 
 EXEC 	= dcipher

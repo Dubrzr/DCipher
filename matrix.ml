@@ -5,8 +5,9 @@ object (self)
 
   val mat = Array.init n (fun _ -> Array.make m initValue)
 
-  method getWith = n
+  method getWidth = n
   method getHeight = m
+  method getDims = (n, m)
 
   method isInBounds x y = x >= 0 && y >= 0 && x < n && y < m
   method at x y =
@@ -24,4 +25,11 @@ object (self)
       done;
     done;
 
+(*
+
+  method copyTo anotherM = 
+    self#iter (fun i j value -> anotherM#set i j value)
+
+  method copyFrom anotherM =
+    anotherM#iter (fun i j value -> self#set i j value)*)
 end

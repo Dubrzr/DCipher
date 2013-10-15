@@ -1,7 +1,4 @@
-let rec pause () =
-  match Sdlevent.wait_event () with
-      Sdlevent.QUIT | Sdlevent.KEYDOWN _ -> ()
-    | _ -> pause()
+
 
 let main () =
   begin
@@ -15,9 +12,10 @@ let main () =
 
     img#load Sys.argv.(1);
     img#render screen;
-
     Sdlvideo.flip screen;
-    pause ();
+
+
+    Preproc.processAll img screen true ;
 
     Sdl.quit ();
     exit 0

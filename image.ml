@@ -32,6 +32,8 @@ object (self)
 
   method getWidth = w
   method getHeight = h
+  method getDims = (w, h)
+
 
   method load filename =
     src <- Sdlloader.load_image filename;
@@ -41,7 +43,8 @@ object (self)
     self#render dst#getSrc
 
   method render (dst:Sdlvideo.surface) =
-    Sdlvideo.blit_surface src dst ()
+    Sdlvideo.blit_surface src dst ();
+    Sdlvideo.flip src;
 
   method iter (f:int -> int -> (int * int * int) -> unit) =
     for i = 0 to w - 1 do
