@@ -1,3 +1,5 @@
+exception ImageOutOfBounds of int * int
+
 class image w h =
 object (self)
 
@@ -18,6 +20,16 @@ object (self)
     src <- s;
     self#updateDims
 
+  method isInBounds x y = x >= 0 && y >= 0 && x < w && y < h
+
+  method getPixel x y =
+    if not (self#isInBounds x y) then raise (ImageOutOfBounds (x, y))
+    else Sdlvideo.get_pixel_color src x y
+
+  method putPixel x y p =
+    if not (self#isInBounds x y) then raise (ImageOutOfBounds (x, y))
+    else Sdlvideo.put_pixel_color src x y p
+
   method getWidth = w
   method getHeight = h
 
@@ -30,5 +42,12 @@ object (self)
 
   method render (dst:Sdlvideo.surface) =
     Sdlvideo.blit_surface src dst ()
+
+  method iter (f:int -> int -> (int * int * int) -> unit) =
+    for i = 0 to w - 1 do
+      for j = 0 to h - 1 do
+        f i j (self#getPixel i j)
+      done;
+    done;
 
 end

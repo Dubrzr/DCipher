@@ -3,7 +3,9 @@ CAMLFLAGS 	= -I +sdl -I +site-lib/sdl -g
 CAMLLD 		= bigarray.cma sdl.cma sdlloader.cma sdlttf.cma sdlgfx.cma str.cma
 
 SOURCES = utils.ml
+SOURCES += matrix.ml
 SOURCES += image.ml
+SOURCES += convert.ml
 SOURCES += main.ml
 
 EXEC 	= dcipher
