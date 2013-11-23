@@ -1,7 +1,7 @@
 exception MatrixOutOfBounds of int * int
 
 class ['a] matrix n m (initValue:'a) =
-object (self)
+object (self: 'self)
 
   val mat = Array.init n (fun _ -> Array.make m initValue)
 
@@ -25,9 +25,18 @@ object (self)
       done;
     done;
 
+<<<<<<< HEAD
   method copyTo anotherM = 
     self#iter (fun i j value -> anotherM#set i j value)
 
   method copyFrom anotherM =
     anotherM#iter (fun i j value -> self#set i j value)
+=======
+  method copyTo (mat:'self) =
+    self#iter mat#set
+
+  method copyFrom (mat:'self) =
+    mat#iter self#set
+
+>>>>>>> a3caf796ec56366869d6fe91adc8f1f1481e19d4
 end
