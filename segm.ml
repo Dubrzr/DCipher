@@ -1,7 +1,7 @@
 (* ==== *)
 (* RLSA *)
 (* ==== *)
-(*
+
 let getRlsaVect vect length c =
   let newVect = Array.make length false in
   
@@ -89,4 +89,4 @@ let getRlsa verticalMatrix horizontalMatrix =
         newMatrix.(x).(y) <- true
     done;    
   done;
-  newMatrix*)
+  newMatrix

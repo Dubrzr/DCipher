@@ -31,7 +31,7 @@ let printTitle title =
 	end
 	
 let printArgs str args =
-	print_string ("\n" ^ str);
+	print_string ("\n" ^ str ^ " = (");
 	let rec printBidule lt = match lt with
 		| [] -> print_string ")";
 		| e::l -> print_int e; if l <> [] then print_string ", "; printBidule l;

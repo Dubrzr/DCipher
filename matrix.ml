@@ -25,11 +25,9 @@ object (self)
       done;
     done;
 
-(*
-
   method copyTo anotherM = 
     self#iter (fun i j value -> anotherM#set i j value)
 
   method copyFrom anotherM =
-    anotherM#iter (fun i j value -> self#set i j value)*)
+    anotherM#iter (fun i j value -> self#set i j value)
 end

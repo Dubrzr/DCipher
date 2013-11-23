@@ -1,5 +1,4 @@
-
-(* =========================== *)
+(* =========================== *) 
 (* ====== PREPROCESSING ====== *)
 (* =========================== *)
 (*                             *)
@@ -19,7 +18,7 @@
 (*                             *)
 (* --------------------------- *)
 (*                             *)
-(* -> Last change:  23/11/2013 *)
+(* -> Last change:  28/11/2013 *)
 (*                             *)
 (* --------------------------- *)
 (*                             *)
@@ -49,12 +48,12 @@ let processAll img screen stepByStep =
 	let greyMatrix = Convert.matrixGrey_of_image img in
 
   img#render screen;
-  (*Sdlvideo.flip screen;*)
+  Sdlvideo.flip screen;
 	if (stepByStep) then Utils.pause ();
 
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
 
-
+(*
 	Utils.printTitle "CONTRAST HISTOGRAM EQUALIZATION";
   print_string "------> Start\n";
   let t = Sdltimer.get_ticks () in
@@ -63,11 +62,12 @@ let processAll img screen stepByStep =
   let img = Convert.image_of_matrixGrey greyMatrix in
 
   img#render screen;
+  Sdlvideo.flip screen;
   if (stepByStep) then Utils.pause ();
 
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-
-
+*)
+(*
   Utils.printTitle "MEDIAN FILTER";
   print_string "------> Start\n";
   let t = Sdltimer.get_ticks () in
@@ -76,10 +76,11 @@ let processAll img screen stepByStep =
   let img = Convert.image_of_matrixGrey greyMatrix in
 
   img#render screen;
+  Sdlvideo.flip screen;
   if (stepByStep) then Utils.pause ();
 
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-
+*)
 
   Utils.printTitle "BINARIZATION";
   print_string "------> Start\n";
@@ -93,9 +94,30 @@ let processAll img screen stepByStep =
   let img = Convert.image_of_matrixBool booleanMatrix in
 
   img#render screen;
+  Sdlvideo.flip screen;
   if (stepByStep) then Utils.pause ();
 
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+
+
+  Utils.printTitle "ROTATION";
+  print_string "------> Start\n";
+  let t = Sdltimer.get_ticks () in
+
+  let angle = 25. in
+
+  Printf.printf "\n Angle = %f" angle;
+
+  let greyMatrix = Rotation.bilinearRotation booleanMatrix angle in
+  let img = Convert.image_of_matrixGrey greyMatrix in
+
+  img#render screen;
+  Sdlvideo.flip screen;
+  if (stepByStep) then Utils.pause ();
+
+  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+
+
 
 (*
   Utils.printTitle "RLSA";
@@ -112,5 +134,5 @@ let processAll img screen stepByStep =
   img#render screen;
   if (stepByStep) then Utils.pause ();
 
-  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);*)
-
+  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+*)
