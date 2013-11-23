@@ -84,7 +84,7 @@ let getThreshold matrix =
     for i = 0 to 255 do
       vect.(i) <- otsu greyVect i;
     done;
-  Utils.foi (Utils.maxVect vect) /. 256. 
+  Utils.foi (Utils.maxVect vect) /. 256. -. 0.2
 
 (* ================== *)
 (* CONVOLUTION MATRIX *)

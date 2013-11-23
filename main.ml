@@ -15,7 +15,7 @@ let main () =
     Sdlvideo.flip screen;
 
 
-    Preproc.processAll img screen true;
+    Preproc.processAll img screen false;
 
     Sdl.quit ();
     exit 0

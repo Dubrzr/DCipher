@@ -49,48 +49,44 @@ let vectOfMatrixY matrix columnNumber =
   vect
 
 let vectToMatrixX matrix lineNumber vect = 
-  let newMatrix = new Matrix.matrix matrix#getWidth matrix#getHeight false in
-  newMatrix#copyFrom matrix;
   for x = 0 to matrix#getWidth - 1 do
-    newMatrix#set x lineNumber vect.(x)
-  done;
-  newMatrix
+    matrix#set x lineNumber vect.(x)
+  done
 
 let vectToMatrixY matrix columnNumber vect = 
-  let newMatrix = new Matrix.matrix matrix#getWidth matrix#getHeight false in
-  newMatrix#copyFrom matrix;
   for y = 0 to matrix#getHeight - 1 do
-    newMatrix#set columnNumber y vect.(y)
+    matrix#set columnNumber y vect.(y)
+  done
+
+let horizontalRlsa binarizedMatrix = 
+  let newMatrix = new Matrix.matrix binarizedMatrix#getWidth binarizedMatrix#getHeight false in 
+  newMatrix#copyFrom binarizedMatrix;
+  for i = 0 to newMatrix#getHeight - 1 do
+    vectToMatrixX newMatrix i (getRlsaVect (vectOfMatrixX newMatrix i) newMatrix#getWidth 5)
   done;
   newMatrix
-(*
-let horizontalRlsa binarizedMatrix = 
-  let (width,height) = binarizedMatrix#getDims in
-  let newMatrix = new Matrix.matrix matrix#getWidth matrix#getHeight false in 
-  for i = 0 to height - 1 do
-    newMatrix := vectToMatrixX binarizedMatrix i (getRlsaVect (vectOfMatrixX binarizedMatrix i) width 5)
-  done;
-  !newMatrix
 
 let verticalRlsa binarizedMatrix =
-  let (width,height) = getDimsM binarizedMatrix in
-  let newMatrix = ref (Array.make_matrix width height false) in 
-  for i = 0 to width - 1 do
-    newMatrix := vectToMatrixY binarizedMatrix i (getRlsaVect (vectOfMatrixY binarizedMatrix i) height 5)
+  let newMatrix = new Matrix.matrix binarizedMatrix#getWidth binarizedMatrix#getHeight false in 
+  newMatrix#copyFrom binarizedMatrix;
+  for i = 0 to newMatrix#getWidth - 1 do
+    vectToMatrixY newMatrix i (getRlsaVect (vectOfMatrixY newMatrix i) newMatrix#getHeight 5)
   done;
-  !newMatrix
+  newMatrix
 
-let getRlsa verticalMatrix horizontalMatrix =
-  let (width,height) = getDimsM verticalMatrix in
-  let newMatrix = Array.make_matrix width height false in 
+let getRlsa matrix =
+  let (width,height) = matrix#getDims in
+  let newMatrix = new Matrix.matrix width height false in
+  let horizontalMatrix = horizontalRlsa matrix and
+      verticalMatrix   = verticalRlsa   matrix in 
   for y = 0 to height - 1 do
     for x = 0 to width - 1  do
-      if horizontalMatrix.(x).(y) && verticalMatrix.(x).(y) then
-        newMatrix.(x).(y) <- true
+      if horizontalMatrix#at x y && verticalMatrix#at x y then
+        newMatrix#set x y true
     done;
   done;
   newMatrix
-
+(*
 let segmMoiCaPlz binarizedMatrix =
   *)
 
