@@ -29,6 +29,6 @@ object (self: 'self)
     self#iter mat#set
 
   method copyFrom (mat:'self) =
-    self#set mat#iter
+    mat#iter self#set
 
 end
