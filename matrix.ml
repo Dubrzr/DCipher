@@ -25,6 +25,23 @@ object (self: 'self)
       done;
     done;
 
+  method map f =
+    for i = 0 to n - 1 do
+      for j = 0 to m - 1 do
+        self#set i j (f i j mat.(i).(j))
+      done;
+    done;
+
+  method saveToFile fname =
+    let f = open_out_bin fname in
+    self#iter (fun _ _ v -> output_value f v);
+    close_out f
+
+  method loadFromFile fname =
+    let f = open_in_bin fname in
+    self#map (fun _ _ v -> input_value f);
+    close_in f
+
   method copyTo (mat:'self) =
     self#iter mat#set
 
