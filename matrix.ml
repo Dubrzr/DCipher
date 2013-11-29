@@ -1,7 +1,7 @@
 exception MatrixOutOfBounds of int * int
 
 class ['a] matrix n m (initValue:'a) =
-object (self: 'self)
+object (self:'self)
 
   val mat = Array.init n (fun _ -> Array.make m initValue)
 
@@ -25,6 +25,7 @@ object (self: 'self)
       done;
     done;
 
+<<<<<<< HEAD
   method map f =
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do
@@ -41,11 +42,13 @@ object (self: 'self)
     let f = open_in_bin fname in
     self#map (fun _ _ v -> input_value f);
     close_in f
+=======
+
+>>>>>>> 228c2276641acc87744d274f9b3a7b556cade054
 
   method copyTo (mat:'self) =
     self#iter mat#set
 
   method copyFrom (mat:'self) =
     mat#iter self#set
-
 end

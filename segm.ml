@@ -1,7 +1,7 @@
 (* ==== *)
 (* RLSA *)
 (* ==== *)
-(*
+
 let getRlsaVect vect length c =
   let newVect = Array.make length false in
   
@@ -63,10 +63,10 @@ let vectToMatrixY matrix columnNumber vect =
     newMatrix#set columnNumber y vect.(y)
   done;
   newMatrix
-
+(*
 let horizontalRlsa binarizedMatrix = 
   let (width,height) = binarizedMatrix#getDims in
-  let newMatrix = ref (Array.make_matrix width height false) in 
+  let newMatrix = new Matrix.matrix matrix#getWidth matrix#getHeight false in 
   for i = 0 to height - 1 do
     newMatrix := vectToMatrixX binarizedMatrix i (getRlsaVect (vectOfMatrixX binarizedMatrix i) width 5)
   done;
@@ -87,6 +87,21 @@ let getRlsa verticalMatrix horizontalMatrix =
     for x = 0 to width - 1  do
       if horizontalMatrix.(x).(y) && verticalMatrix.(x).(y) then
         newMatrix.(x).(y) <- true
-    done;    
+    done;
   done;
-  newMatrix*)
+  newMatrix
+
+let segmMoiCaPlz binarizedMatrix =
+  *)
+
+
+
+
+
+
+
+
+
+
+
+
