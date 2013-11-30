@@ -1,24 +1,29 @@
-
-
 let main () =
   begin
-    Sdl.init [`VIDEO];
-
-    if Array.length Sys.argv <= 1 then
+    if Array.length Sys.argv < 2 then
       exit 1;
 
-    let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:16 [`HWSURFACE] and
-        img = new Image.image 0 0 in
+    Sdl.init [`VIDEO];
 
+    let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:16 [`HWSURFACE] in
+    ignore (Sys.command "i3-msg floating enable"); (* forget this... *)
+
+    let img = new Image.image 0 0 in
     img#load Sys.argv.(1);
+
     img#render screen;
     Sdlvideo.flip screen;
 
-
-    Preproc.processAll img screen false;
+    Utils.pause ();
 
     Sdl.quit ();
-    exit 0
   end
 
-let _ = main ()
+let _ =
+  Printexc.record_backtrace true;
+  try Utils.debugTimer "program" (Printexc.print main) with _ ->
+   begin
+     Printf.printf "Error: ";
+     Printexc.print_backtrace stdout;
+   end;
+   exit 0;
