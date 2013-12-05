@@ -24,3 +24,8 @@ let image_of_matrixBool mat =
       im = new Image.image mat#getWidth mat#getHeight in
   mat#iter (fun i j value -> im#putPixel i j (if value then blk else wht));
   im
+
+let float_of_input (a, b) i : float =
+  if i = 0 then float a else float b
+
+let float_of_target = float

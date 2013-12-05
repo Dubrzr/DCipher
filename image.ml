@@ -10,6 +10,9 @@ object (self)
   val mutable w:int = w
   val mutable h:int = h
 
+  initializer
+    Sdlvideo.fill_rect src (Sdlvideo.map_RGB src Sdlvideo.white)
+
   method updateDims =
     let i = Sdlvideo.surface_info src in
     w <- i.Sdlvideo.w;
@@ -34,6 +37,19 @@ object (self)
   method getHeight = h
   method getDims = (w, h)
 
+  method crop nw nh =
+    let nsrc = Sdlvideo.create_RGB_surface [`HWSURFACE] ~w:nw ~h:nh ~bpp:16
+      ~rmask:Int32.zero ~gmask:Int32.zero ~bmask:Int32.zero ~amask:Int32.zero in
+    Sdlvideo.fill_rect nsrc (Sdlvideo.map_RGB nsrc Sdlvideo.white);
+    let center = Sdlvideo.({
+      r_x = (nw-w)/2;
+      r_y = (nh-h)/2;
+      r_w = 0;
+      r_h = 0;
+    }) in
+    Sdlvideo.blit_surface ~src:src ~dst_rect:center ~dst:nsrc ();
+    Sdlvideo.flip src;
+    self#setSrc nsrc
 
   method load filename =
     src <- Sdlloader.load_image filename;
@@ -44,7 +60,7 @@ object (self)
 
   method render (dst:Sdlvideo.surface) =
     Sdlvideo.blit_surface src dst ();
-    Sdlvideo.flip src;
+    Sdlvideo.flip dst;
 
   method iter (f:int -> int -> (int * int * int) -> unit) =
     for i = 0 to w - 1 do

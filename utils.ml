@@ -29,7 +29,7 @@ let printTitle title =
 		done;
 		print_string " *)\n";
 	end
-	
+
 let printArgs str args =
 	print_string ("\n" ^ str ^ " = (");
 	let rec printBidule lt = match lt with
@@ -37,8 +37,8 @@ let printArgs str args =
 		| e::l -> print_int e; if l <> [] then print_string ", "; printBidule l;
 	in
 	printBidule args
-		
-			
+
+
 
 
 let absHalf x =
