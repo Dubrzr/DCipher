@@ -37,9 +37,6 @@ let printArgs str args =
 		| e::l -> print_int e; if l <> [] then print_string ", "; printBidule l;
 	in
 	printBidule args
-		
-			
-
 
 let absHalf x =
 if (x -. float_of_int(truncate(x))) < 0.5 then
@@ -57,9 +54,19 @@ let getDimsM matrix =
   (Array.length matrix,
    Array.length matrix.(0))
 
- let maxVect vect =
+let minVect vect =
+  let min = ref 0 in
+  for i = 0 to (Array.length vect) - 1 do
+    if vect.(i) < vect.(!min) then min := i;
+  done;
+  !min
+
+let maxVect vect =
   let max = ref 0 in
   for i = 0 to (Array.length vect) - 1 do
     if vect.(i) > vect.(!max) then max := i;
   done;
   !max
+
+let minAndMaxVect vect =
+  (minVect vect, maxVect vect)

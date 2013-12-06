@@ -7,7 +7,7 @@ let main () =
     if Array.length Sys.argv <= 1 then
       exit 1;
 
-    let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:16 [`HWSURFACE] and
+    let screen = Sdlvideo.set_video_mode ~w:640 ~h:800 ~bpp:16 [`HWSURFACE] and
         img = new Image.image 0 0 in
 
     img#load Sys.argv.(1);
@@ -15,7 +15,7 @@ let main () =
     Sdlvideo.flip screen;
 
 
-    Preproc.processAll img screen false;
+    Preproc.processAll img screen true;
 
     Sdl.quit ();
     exit 0

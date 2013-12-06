@@ -10,7 +10,6 @@ SOURCES += treatment.ml
 SOURCES += rotation.ml
 SOURCES += segm.ml
 SOURCES += preproc.ml
-SOURCES += ocr.ml
 SOURCES += main.ml
 
 EXEC 	= dcipher

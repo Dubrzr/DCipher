@@ -9,7 +9,7 @@ let colorToGrey (r,g,b) =
   let grey = int_of_float (level (r,g,b) *. 255.) in (grey, grey, grey)
 
 let imageToGrey img =
-  img#iter (fun i j (r,g,b) -> img#putPixel i j (colorToGrey (r,g,b)))
+  img#iter (fun i j (r,g,b) -> img#putPixel i j (colorToGrey (r,g,b))) 
 
 (* =============================== *)
 (* CONTRAST HISTOGRAM EQUALIZATION *)
@@ -84,8 +84,41 @@ let getThreshold matrix =
     for i = 0 to 255 do
       vect.(i) <- otsu greyVect i;
     done;
-  Utils.foi (Utils.maxVect vect) /. 256. -. 0.2
+  Utils.foi (Utils.maxVect vect) /. 256.
 
+let get_threshold matrix = 
+        let (width,height) = matrix#getDims in
+        let sum = ref 0 and sumB = ref 0 in
+        let wB = ref 0 and wF = ref 0 in
+        let varMax = ref 0. and threshold = ref 0 in
+        let hist = createGreyHistogram matrix in
+        for i = 0 to 255 do 
+                sum := !sum + i * (Utils.iof hist.(i));
+        done;
+        let break = ref false in
+        for i = 0 to 255 do
+          if (not !break) then
+          begin
+            wB := !wB + (Utils.iof hist.(i));
+            if (!wB <> 0) then
+            begin
+              wF := (width*height) - !wB;
+              if (!wF = 0) then
+              begin
+                      break := true;
+              end
+              else
+              begin
+                sumB := !sumB + (i * (Utils.iof hist.(i)););
+                let mB = (float)(!sumB/(!wB)) and mF = (float)((!sum-(!sumB))/(!wF)) in
+                let varB = (float) !wB *.(float) !wF *.(mB-.mF) *.(mB-.mF) in
+                threshold := if varB > !varMax then i else !threshold;
+                varMax := if varB > !varMax then varB else !varMax;
+              end
+            end
+          end
+        done; 
+    (Utils.foi !threshold) /. 255.
 (* ================== *)
 (* CONVOLUTION MATRIX *)
 (* ================== *)

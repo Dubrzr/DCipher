@@ -1,4 +1,3 @@
-(* rotate by bilinear interpolation *)
 let bilinearRotation matrix angle =
 	let angle = Utils.degreeToRadian angle in
 	let (cosA,sinA) = (cos angle),(sin angle) in
@@ -11,7 +10,7 @@ let bilinearRotation matrix angle =
 	Utils.printArgs "(w, h)" ((Utils.iof w)::(Utils.iof h)::[]);
 	let newMatrix = new Matrix.matrix (Utils.iof w)
 									  (Utils.iof h)
-									  0 in
+									  false in
 
 	for i = 0 to (Utils.iof w) - 1 do
 		for j = 0 to (Utils.iof h) - 1 do
@@ -44,9 +43,32 @@ let bilinearRotation matrix angle =
                       ((1. -. xf) *. yf *. (float !cc)) +.
                       (xf *. yf *. (float !cd)))
                       in
-         
-        	let pixel = grey in
+            let pixel = (if grey < 245	 then true else false) in
       		newMatrix#set i ((Utils.iof h) - 1 - j) pixel;
     	done;
     done;
     newMatrix
+
+
+(* OLD ROTATION *)
+let rotate matrix angle =
+  let (width,height) = matrix#getDims in
+  let (centerX, centerY) = (Utils.foi (width / 2), Utils.foi (height / 2)) in
+  let resultMatrix = new Matrix.matrix width height false in
+  let cosa = cos (-. angle) and
+      sina = sin (-. angle) in
+    for x = 0 to width - 1 do
+      for y = 0 to height - 1 do
+        begin
+          let posX =
+            Utils.iof (centerX +. (float x -. centerX) *.
+                           cosa -. (float y -. centerY) *. sina) in
+          let posY =
+            Utils.iof (centerY +. (float x -. centerX) *.
+                           sina +. (float y -. centerY) *. cosa) in
+          if resultMatrix#isInBounds posX posY then
+            resultMatrix#set posX posY (matrix#at x y)
+        end;
+      done; 
+    done;
+  resultMatrix
