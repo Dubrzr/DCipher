@@ -29,7 +29,7 @@ let printTitle title =
 		done;
 		print_string " *)\n";
 	end
-	
+
 let printArgs str args =
 	print_string ("\n" ^ str ^ " = (");
 	let rec printBidule lt = match lt with
@@ -37,6 +37,12 @@ let printArgs str args =
 		| e::l -> print_int e; if l <> [] then print_string ", "; printBidule l;
 	in
 	printBidule args
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> be87bd39dc1bf67e4738516c5b73e641ad02d713
 
 let absHalf x =
 if (x -. float_of_int(truncate(x))) < 0.5 then
@@ -67,6 +73,9 @@ let maxVect vect =
     if vect.(i) > vect.(!max) then max := i;
   done;
   !max
+<<<<<<< HEAD
 
 let minAndMaxVect vect =
   (minVect vect, maxVect vect)
+=======
+>>>>>>> be87bd39dc1bf67e4738516c5b73e641ad02d713

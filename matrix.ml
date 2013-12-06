@@ -25,10 +25,14 @@ object (self:'self)
       done;
     done;
 
+<<<<<<< HEAD
   method map f =
+=======
+  method map (f:int -> int -> 'a -> 'a) =
+>>>>>>> be87bd39dc1bf67e4738516c5b73e641ad02d713
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do
-        self#set i j (f i j mat.(i).(j))
+        mat.(i).(j) <- f i j mat.(i).(j)
       done;
     done;
 
@@ -39,7 +43,7 @@ object (self:'self)
 
   method loadFromFile fname =
     let f = open_in_bin fname in
-    self#map (fun _ _ v -> input_value f);
+    self#map (fun _ _ -> input_value f);
     close_in f
 
   method copyTo (mat:'self) =
@@ -47,4 +51,36 @@ object (self:'self)
 
   method copyFrom (mat:'self) =
     mat#iter self#set
+
+  method print (f: 'a -> unit) =
+    for i = 0 to m - 1 do
+      for j = 0 to n - 1 do
+        f mat.(j).(i)
+      done;
+      Printf.printf "\n";
+    done;
+end
+
+class ['a] floatMatrix n m (initValue:'a) =
+object (self:'self)
+  inherit ['a] matrix n m initValue
+  constraint 'a = float
+end
+
+class ['a] intMatrix n m (initValue:'a) =
+object (self:'self)
+  inherit ['a] matrix n m initValue
+  constraint 'a = int
+end
+
+class ['a] int3Matrix n m (initValue:'a) =
+object (self:'self)
+  inherit ['a] matrix n m initValue
+  constraint 'a = int * int * int
+end
+
+class ['a] boolMatrix n m (initValue:'a) =
+object (self:'self)
+  inherit ['a] matrix n m initValue
+  constraint 'a = bool
 end

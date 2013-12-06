@@ -1,6 +1,6 @@
-CAMLC 		= ocamlopt
+CAMLC 		= ocamlc
 CAMLFLAGS 	= -I +sdl -I +site-lib/sdl -g
-CAMLLD 		= bigarray.cmxa sdl.cmxa sdlloader.cmxa sdlttf.cmxa sdlgfx.cmxa str.cmxa
+CAMLLD 		= bigarray.cma sdl.cma sdlloader.cma sdlttf.cma  sdlgfx.cma str.cma unix.cma
 
 SOURCES = utils.ml
 SOURCES += matrix.ml
@@ -10,12 +10,14 @@ SOURCES += treatment.ml
 SOURCES += rotation.ml
 SOURCES += segm.ml
 SOURCES += preproc.ml
+SOURCES += neuralnetwork.ml
+SOURCES += ocr.ml
 SOURCES += main.ml
 
 EXEC 	= dcipher
 
 MLIS = $(SOURCES:.ml=.mli)
-OBJS = $(SOURCES:.ml=.cmx)
+OBJS = $(SOURCES:.ml=.cmo)
 
 all: $(EXEC)
 
@@ -29,7 +31,7 @@ $(EXEC): $(OBJS)
 .ml.mli:
 	$(CAMLC) $(CAMLFLAGS) $(CAMLLD) -i $< > $<i
 
-.ml.cmx:
+.ml.cmo:
 	$(CAMLC) $(CAMLFLAGS) $(CAMLLD) -c $<
 
 clean::
