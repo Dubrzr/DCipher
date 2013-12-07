@@ -9,6 +9,9 @@ object (self:'self)
   method getHeight = m
   method getDims = (n, m)
 
+  method printInfos = 
+    Utils.printArgs "(width, height)" (n :: m :: [])
+
   method isInBounds x y = x >= 0 && y >= 0 && x < n && y < m
   method at x y =
     if not (self#isInBounds x y) then raise (MatrixOutOfBounds (x, y))
@@ -25,11 +28,7 @@ object (self:'self)
       done;
     done;
 
-<<<<<<< HEAD
-  method map f =
-=======
   method map (f:int -> int -> 'a -> 'a) =
->>>>>>> be87bd39dc1bf67e4738516c5b73e641ad02d713
     for i = 0 to n - 1 do
       for j = 0 to m - 1 do
         mat.(i).(j) <- f i j mat.(i).(j)

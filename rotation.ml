@@ -21,13 +21,13 @@ let bilinearRotation matrix angle =
 							(centerY +. (sinA *. (fi -. centerX)) +.
 							(cosA *. (centerY -. fj)))) in
 			let (ax,ay) = Utils.iof (x),Utils.iof (y) and
-				(bx,by) = Utils.iof (x) + 1,Utils.iof (y) and
-				(cx,cy) = Utils.iof (x),Utils.iof (y) + 1 and
-				(dx,dy) = Utils.iof (x) + 1,Utils.iof (y) + 1 and
-				ca = ref 0 and 
-				cb = ref 0 and 
-				cc = ref 0 and 
-				cd = ref 0 in
+				  (bx,by) = Utils.iof (x) + 1,Utils.iof (y) and
+				  (cx,cy) = Utils.iof (x),Utils.iof (y) + 1 and
+				  (dx,dy) = Utils.iof (x) + 1,Utils.iof (y) + 1 and
+				  ca = ref 0 and 
+				  cb = ref 0 and 
+				  cc = ref 0 and 
+				  cd = ref 0 in
  			
  			let value x y = if (matrix#at x y) then 0 else 255 in
            if (matrix#isInBounds ax ay) then ca := value ax ay;
@@ -43,7 +43,7 @@ let bilinearRotation matrix angle =
                       ((1. -. xf) *. yf *. (float !cc)) +.
                       (xf *. yf *. (float !cd)))
                       in
-            let pixel = (if grey < 245	 then true else false) in
+            let pixel = (if grey < 245 then true else false) in
       		newMatrix#set i ((Utils.iof h) - 1 - j) pixel;
     	done;
     done;
@@ -52,23 +52,69 @@ let bilinearRotation matrix angle =
 
 (* OLD ROTATION *)
 let rotate matrix angle =
-  let (width,height) = matrix#getDims in
-  let (centerX, centerY) = (Utils.foi (width / 2), Utils.foi (height / 2)) in
-  let resultMatrix = new Matrix.matrix width height false in
-  let cosa = cos (-. angle) and
-      sina = sin (-. angle) in
-    for x = 0 to width - 1 do
-      for y = 0 to height - 1 do
-        begin
-          let posX =
-            Utils.iof (centerX +. (float x -. centerX) *.
-                           cosa -. (float y -. centerY) *. sina) in
-          let posY =
-            Utils.iof (centerY +. (float x -. centerX) *.
-                           sina +. (float y -. centerY) *. cosa) in
-          if resultMatrix#isInBounds posX posY then
-            resultMatrix#set posX posY (matrix#at x y)
-        end;
-      done; 
+	if angle <> 0. then
+	let angle = Utils.degreeToRadian angle in
+		begin
+			let (width,height) = matrix#getDims in
+		  let (centerX, centerY) = (Utils.foi (width / 2), Utils.foi (height / 2)) in
+		  let resultMatrix = new Matrix.matrix width height false in
+		  let cosa = cos (-. angle) and
+		      sina = sin (-. angle) in
+		    for x = 0 to width - 1 do
+		      for y = 0 to height - 1 do
+		        begin
+		          let posX =
+		            Utils.iof (centerX +. (float x -. centerX) *.
+		                           cosa -. (float y -. centerY) *. sina) in
+		          let posY =
+		            Utils.iof (centerY +. (float x -. centerX) *.
+		                           sina +. (float y -. centerY) *. cosa) in
+		          if resultMatrix#isInBounds posX posY then
+		            resultMatrix#set posX posY (matrix#at x y)	
+		        end;
+		      done; 
+		    done;
+		  resultMatrix
+		end
+	else
+		matrix
+  
+
+let max_matrix matrix w h =
+  let maxpos = ref(0,0) in
+  let max = ref 0 in
+  for j=0 to (h-1) do
+    for i =0 to (w-1) do
+      if (!max < matrix.(i).(j)) then
+	begin
+	  maxpos := (i,j);
+	  max := matrix.(i).(j)
+	end
     done;
-  resultMatrix
+  done;
+  !maxpos
+
+  (* hough *)
+let hough matrix =
+	let (w, h) = matrix#getDims in
+  let pi = 2.*.acos(0.) in
+  let rad = pi /. 180. in 
+  let pmax = int_of_float( sqrt(float(w*w) +. float(h*h)) +. 1. ) in 
+  let co theta = cos(float(theta) *.rad)  in
+  let si theta = sin(float(theta) *.rad)  in  
+  let hough_matrix = Array.make_matrix pmax 181 0 in
+  for i=0 to w-1 do 
+    for j=0 to h-1 do 
+      if matrix#at i j then
+	for theta = 0 to 180 do
+	  let p =int_of_float(float(i)*.co (theta) +. float(j)*.si (theta)) in
+	  if (p >= 0) then 
+	    hough_matrix.(p).(theta) <- hough_matrix.(p).(theta) + 1
+	  else
+	    hough_matrix.(-p).(theta) <- hough_matrix.(-p).(theta) +1;
+	done
+    done
+  done;
+  let (a,b) = max_matrix hough_matrix pmax 181 in 
+  Utils.foi (- (90-b)) 
+    

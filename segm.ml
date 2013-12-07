@@ -141,10 +141,13 @@ let findLinesComponants vect =
 
                 let minValue = Utils.minVect minValueVect in
                 let maxValue = Utils.maxVect maxValueVect in
-                newMatrixlines.(y) <- (!startPos, 
-                                       !endPos, 
-                                        minValueVect.(minValue), 
-                                        maxValueVect.(maxValue));
+                let (a,b,c,d) = (!startPos, 
+                                 !endPos, 
+                                 minValueVect.(minValue), 
+                                 maxValueVect.(maxValue)) in 
+                Utils.printArgs "(posX, posY, posEndX, posEndY, W, H)" 
+                                 (a::b::(a + c)::(b + d)::c::d::[]);
+                newMatrixlines.(y) <- (a,b,c,d);
               end;
             blackLine := false;
           end
@@ -199,6 +202,178 @@ let travelAllRight img binarizedMatrix colorize =
   let vectLinesComponants = findLinesComponants vectLines in
   colorImgLines img binarizedMatrix vectLinesComponants;
   vectLinesComponants
+
+let cleanMatrixDots mat = 
+  let (w, h) = mat#getDims in
+  let white x y = if mat#isInBounds x y then
+    not (mat#at x y) else true in
+  for j = 0 to h - 1 do
+    for i = 0 to w - 1 do
+      if 
+        not (white i j)       &&
+        white (i - 1) (j - 1) &&
+        white (i - 1) j       &&
+        white (i - 1) (j + 1) &&
+        white i       (j - 1) &&
+        white i       (j + 1) &&
+        white (i + 1) (j - 1) &&
+        white (i + 1) j       &&
+        white (i + 1) (j + 1)
+      then mat#set i j false
+    done    
+  done
+(*
+let deleteBlackStartFrom mat x y (i, j) =
+  let rec aux x y =
+    if mat#isInBounds x y && mat#at x y &&
+      begin
+        mat#set x y false;
+        match (i, j) with
+        | (0, 0)   ->
+          
+            aux (x-1) (y-1);
+            aux (x-1) y;
+            aux (x-1) (y+1);
+            aux x (y-1);
+            aux x (y+1);
+            aux (x+1) (y-1);
+            aux (x+1) y;
+            aux (x+1) (y+1);
+          
+        | (_, _)   -> 
+          
+             aux x (y+j); 
+             aux (x+i) y; 
+             aux (x+i) (y+j);
+           
+      end
+  in aux x y
+
+let deleteBlacksAfterBiRotation mat angle =
+  if angle <> 0. then
+    begin
+      let (w, h) = mat#getDims in
+      deleteBlackStartFrom mat 0 0             ( 1, 1);
+      deleteBlackStartFrom mat 0 (h - 1)       ( 1,-1);
+      deleteBlackStartFrom mat (w - 1) 0       (-1, 1);
+      deleteBlackStartFrom mat (w - 1) (h - 1) (-1,-1);
+    end
+*)
+(*
+let cleanMatrixBlacks mat = 
+  let (w, h) = mat#getDims in
+  let black x y = if mat#isInBounds x y then
+    mat#at x y else true in
+  let count = ref 0 in
+  let pts = ref [] in
+  let rec aux x y =
+    if 
+      !count < 100         &&
+      not (List.exists (fun t -> t = (x, y)) !pts) &&
+      mat#isInBounds x y    &&
+      black x y             &&
+      black (x - 1) (y - 1) &&
+      black (x - 1) y       &&
+      black (x - 1) (y + 1) &&
+      black x       (y - 1) &&
+      black x       (y + 1) &&
+      black (x + 1) (y - 1) &&
+      black (x + 1) y       &&
+      black (x + 1) (y + 1)
+    then 
+      begin
+        Utils.printArgs "cleanMatrixBlacks(x, y)" (x::y::[]);
+        count := !count + 1;
+        pts := (x, y) :: !pts;
+
+        aux (x-1) (y-1);
+        aux (x-1) y;
+        aux (x-1) (y+1);
+        aux x (y-1);
+        aux x (y+1);
+        aux (x+1) (y-1);
+        aux (x+1) y;
+        aux (x+1) (y+1);        
+      end
+  in
+
+  for j = 0 to h - 1 do
+    for i = 0 to w - 1 do
+      count := 0;
+      aux i j;
+      if !count > 5 then deleteBlackStartFrom mat i j
+    done
+  done
+*)
+
+let findElmt elmt x y =
+  let (width,height) = elmt#getDims in
+  let pts = ref [] in
+  let xmax = ref 0 and
+      ymax = ref 0 and
+      xmin = ref (width - 1) and
+      ymin = ref (height - 1) in
+  let rec aux x y =
+    if x < 0 || y < 0 ||
+      x >= width ||
+      y >= height ||
+      not(elmt#at x y) ||
+      List.exists (fun t -> t = (x, y)) !pts then ()
+    else
+      begin
+        pts := (x, y) :: !pts;
+
+        if x > !xmax then xmax := x;
+        if x < !xmin then xmin := x;
+        if y > !ymax then ymax := y;
+        if y < !ymin then ymin := y;
+
+        aux (x-1) (y-1);
+        aux (x-1) y;
+        aux (x-1) (y+1);
+        aux x (y-1);
+        aux x (y+1);
+        aux (x+1) (y-1);
+        aux (x+1) y;
+        aux (x+1) (y+1);
+      end
+  in
+  aux x y;
+
+  let newLine = elmt in 
+  let resultingChar = new Matrix.matrix (!xmax - !xmin  + 1) (height + 1) false in
+  while !pts <> [] do
+    let (x, y) = List.hd !pts in
+    newLine#set x y false;
+    resultingChar#set (x - !xmin) y true;
+    pts := List.tl !pts;
+  done;(*
+  Utils.printArgs "(posX, posY, W, H)" 
+                   ((!xmin)::(!ymin)::(!xmax - !xmin)::(!ymax - !ymin)::[]);*)
+  (resultingChar, newLine)
+
+let findElmts matrix =
+  let (width,height) = matrix#getDims in
+  let charList = ref [] in
+  let actualMatrix = ref matrix in
+  let i = ref 0 and j = ref 0 in
+  while !i < width do
+    while !j < height do
+      if (matrix#at !i !j) then
+        begin
+          let (resultingChar, newMatrix) = (findElmt !actualMatrix !i !j) in
+          (*let (charW, charH) = resultingChar#getDims in
+          if ()*)
+            charList := resultingChar :: !charList;
+          actualMatrix := newMatrix;
+        end;  
+      incr j
+    done;
+    j := 0;
+    incr i;
+  done;
+  !charList
+
 
 (*
 let mAndM firstMatrix secondMatrix =  

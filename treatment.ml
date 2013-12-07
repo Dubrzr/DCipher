@@ -74,7 +74,7 @@ let otsu normalizedVect k =
       varK *. (1. -. varK) *. ((averageVect normalizedVect 255) *. varK -.
         (averageVect normalizedVect (Array.length normalizedVect - 1))) ** 2.
 
-let getThreshold matrix =
+let getThresholdOld matrix =
   let (width,height) = matrix#getDims in
   let greyVect = createGreyHistogram matrix in
     let nbPixels = width * height in
@@ -86,7 +86,7 @@ let getThreshold matrix =
     done;
   Utils.foi (Utils.maxVect vect) /. 256.
 
-let get_threshold matrix = 
+let getThreshold matrix = 
         let (width,height) = matrix#getDims in
         let sum = ref 0 and sumB = ref 0 in
         let wB = ref 0 and wF = ref 0 in
@@ -277,3 +277,6 @@ let relaxedMedianFilter matrix =
       medianValue vect (matrix#at i j)
     )
   )
+(*
+let medianAfterRotate matrix =
+*)
