@@ -8,7 +8,7 @@ let matrixGrey_of_image img =
   img#iter (fun i j (r,g,b) -> m#set i j r);
   m
 
-let matrixGrey_of_booleanMatrix mat = 
+let matrixGrey_of_booleanMatrix mat =
   let m = new Matrix.matrix mat#getWidth mat#getHeight 255 in
   mat#iter (fun i j r -> m#set i j (if r then 0 else 255));
   m
@@ -45,3 +45,5 @@ let matrixOfMatrix (yMin, yMax, xMin, xMax) booleanMatrix =
       done
     done;
   newMatrix
+
+let float_of_bool x = if x then 1. else 0.

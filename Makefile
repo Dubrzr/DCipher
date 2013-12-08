@@ -10,6 +10,7 @@ SOURCES += treatment.ml
 SOURCES += rotation.ml
 SOURCES += segm.ml
 SOURCES += preproc.ml
+SOURCES += serialization.ml
 SOURCES += neuralnetwork.ml
 SOURCES += ocr.ml
 SOURCES += main.ml
