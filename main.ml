@@ -7,13 +7,13 @@ let saveBmp image imagePath =
 let binarize imagepath =
     processing (Main.binarize) ("thumbs/temp.bmp")
 
-let binar imgpath () = 
+let binar imgpath () =
   let imgload = Sdlloader.load_image imgpath in
   let img2 = Treatment.image2grey imgload in
   let img3 = Treatment.image2bin img2 in
   let img4 = Bruit.filtre_med img3 in
   let angle = Rotation.det_angle img4 in
-  let img5 = Rotation.rotation img4 angle in 
+  let img5 = Rotation.rotation img4 angle in
     begin
       Printf.printf "Binarisation";
       print_newline ();
@@ -60,6 +60,10 @@ let main () =
 
     Preproc.processAll img screen true true !filename;
 
+    let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:32 [`HWSURFACE] in
+    let img = new Image.image 0 0 in
+    img#load !filename;
+    Preproc.processAll img screen true;
   end
 
 let _ =
