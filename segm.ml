@@ -32,7 +32,7 @@ let getRlsaVect vect length c =
         j := !aux;
       count := 0;
     done;
-    newVect
+    newVect 
 
 let vectOfMatrixX matrix lineNumber =
   let vect = Array.make matrix#getWidth false in
@@ -220,17 +220,16 @@ let cleanMatrixDots mat =
         white (i + 1) j       &&
         white (i + 1) (j + 1)
       then mat#set i j false
-    done    
+    done
   done
-(*
-let deleteBlackStartFrom mat x y (i, j) =
+
+let deleteBlackStartFrom mat x y i j =
   let rec aux x y =
-    if mat#isInBounds x y && mat#at x y &&
+    if mat#isInBounds x y && mat#at x y then
       begin
         mat#set x y false;
-        match (i, j) with
-        | (0, 0)   ->
-          
+        if (i, j) = (0, 0) then
+          begin
             aux (x-1) (y-1);
             aux (x-1) y;
             aux (x-1) (y+1);
@@ -239,26 +238,61 @@ let deleteBlackStartFrom mat x y (i, j) =
             aux (x+1) (y-1);
             aux (x+1) y;
             aux (x+1) (y+1);
-          
-        | (_, _)   -> 
-          
-             aux x (y+j); 
-             aux (x+i) y; 
-             aux (x+i) (y+j);
-           
+          end
+        else
+          begin
+            aux x (y+j);
+            aux (x+i) y;
+            aux (x+i) (y+j);
+          end
       end
   in aux x y
+
+let mediumHeightOfLineVect linesVect =
+  let count = ref 0 in
+  for i = 0 to (Array.length linesVect) - 1 do
+    let (yMin, yMax, xMin, xMax) = linesVect.(i) in
+      count := !count + (yMax - yMin);
+  done;
+  (!count / ((Array.length linesVect) - 1))
+
+let isHereBlacksUseless mat maxHeight = 
+  let (w, h) = mat#getDims in
+  let aux x =
+    let count = ref 0 in
+    for j = 0 to h - 1 do
+      if (!count <= maxHeight) &&
+         mat#at x j then
+        begin
+          count := !count + 1;
+        end
+      else
+        begin
+          if (maxHeight >= !count) then
+            count := 0;
+        end;
+    done;
+    (maxHeight < !count)
+  in
+  let i = ref 0 in
+  let res = ref false in
+  while not(!res) && !i < w do
+    res := aux !i;
+    i := !i + 1;
+  done;
+  !res
+
 
 let deleteBlacksAfterBiRotation mat angle =
   if angle <> 0. then
     begin
       let (w, h) = mat#getDims in
-      deleteBlackStartFrom mat 0 0             ( 1, 1);
-      deleteBlackStartFrom mat 0 (h - 1)       ( 1,-1);
-      deleteBlackStartFrom mat (w - 1) 0       (-1, 1);
-      deleteBlackStartFrom mat (w - 1) (h - 1) (-1,-1);
+      deleteBlackStartFrom mat 0 0             ( 1) ( 1);
+      deleteBlackStartFrom mat 0 (h - 1)       ( 1) (-1);
+      deleteBlackStartFrom mat (w - 1) 0       (-1) ( 1);
+      deleteBlackStartFrom mat (w - 1) (h - 1) (-1) (-1);
     end
-*)
+
 (*
 let cleanMatrixBlacks mat = 
   let (w, h) = mat#getDims in

@@ -83,3 +83,54 @@ object (self:'self)
   inherit ['a] matrix n m initValue
   constraint 'a = bool
 end
+
+
+
+let resize mat newW newH =
+  let (n, m) = mat#getDims in
+  let temp = new matrix newW newH false in
+  let arrayPixels = Array.make (n * m) false in
+  for j = 0 to m - 1 do
+    for i = 0 to n - 1 do
+      let pixelPos = j * n + i in
+      arrayPixels.(pixelPos) <- mat#at i j;
+    done      
+  done;
+  
+  let a = ref 0. and
+      b = ref 0. and
+      c = ref 0. and
+      d = ref 0. and
+      x = ref 0 and
+      y = ref 0 and
+      index = ref 0 and
+      grey = ref 0 and
+      x_ratio = (Utils.foi (n - 1)) /. (Utils.foi newW) and
+      y_ratio = (Utils.foi (m - 1)) /. (Utils.foi newH) and
+      x_diff = ref 0. and
+      y_diff = ref 0. in
+  for i = 0 to newH - 1 do
+    for j = 0 to newW - 1 do
+      x := Utils.iof (x_ratio *. (Utils.foi j));
+      y := Utils.iof (y_ratio *. (Utils.foi i));
+      x_diff := (x_ratio *. (Utils.foi j)) -. (Utils.foi !x);
+      y_diff := (y_ratio *. (Utils.foi i)) -. (Utils.foi !y);
+      index := !y * n + !x;
+
+      a := if arrayPixels.(!index) then 0. else 255.;
+      b := if arrayPixels.(!index+1) then 0. else 255.;
+      c := if arrayPixels.(!index+n) then 0. else 255.;
+      d := if arrayPixels.(!index+n+1) then 0. else 255.;
+
+      grey := Utils.iof (
+              !a *. (1. -. !x_diff) *. (1. -. !y_diff) +.
+              !b *. !x_diff *. (1. -. !y_diff) +.
+              !c *. !y_diff *. (1. -. !x_diff) +.
+              !d *. !x_diff *. !y_diff
+            );
+      let color = 
+        if !grey < 254 then true else false in
+        temp#set !x !y color;
+    done
+  done;
+  temp

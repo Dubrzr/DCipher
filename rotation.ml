@@ -96,7 +96,7 @@ let max_matrix matrix w h =
 
   (* hough *)
 let hough matrix =
-	let (w, h) = matrix#getDims in
+  let (w, h) = matrix#getDims in
   let pi = 2.*.acos(0.) in
   let rad = pi /. 180. in 
   let pmax = int_of_float( sqrt(float(w*w) +. float(h*h)) +. 1. ) in 

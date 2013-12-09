@@ -39,40 +39,211 @@
 (* ====== CODE BREAKERS ====== *)
 (* =========================== *)
 
-let processAll img screen stepByStep =
 
-	Utils.printTitle "GREYSCALE";
-  print_string "------> Start\n";
-  let t = Sdltimer.get_ticks () in
-  Treatment.imageToGrey img;
+(*************)
+(* GREYSCALE *)
+(*************) 
+let greyscale img screen file tempFile pause display :unit =
+  begin
+    Utils.printTitle "GREYSCALE"; print_string "------> Start\n";
+    let t = Sdltimer.get_ticks () in
 
-	let greyMatrix = Convert.matrixGrey_of_image img in
+    (* processing *)
+    Treatment.imageToGrey img;
 
-  img#render screen;
+    (* options *)
+    if display then img#render screen;
+    if (tempFile <> "null") then img#saveBmp tempFile;
+
+    Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+    print_newline ();
+    if pause then Utils.pause ();
+  end
+(*******)
+(* END *)
+(*******)
+
+(************)
+(* BINARIZE *)
+(************)
+let binarize img screen tempFile pause display :unit =
+  begin
+    Utils.printTitle "BINARIZATION"; print_string "------> Start\n";
+    let t = Sdltimer.get_ticks () in
+
+    (* processing *)
+    img#load tempFile;
+    let greyMatrix = Convert.matrixGrey_of_image img in
+    let threshold = Treatment.getThreshold greyMatrix in
+    Printf.printf "\n Threshold = %f" threshold;
+    let booleanMatrix = Convert.matrixBool_of_image img  threshold in
+    let img = Convert.image_of_matrixBool booleanMatrix in
+
+    (* options *)
+    if display then img#render screen;
+    if (tempFile <> "null") then img#saveBmp tempFile;
+    
+    Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+    print_newline ();
+    if pause then Utils.pause ();
+  end
   
-  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-  print_newline ();
-  if (stepByStep) then Utils.pause ();
+(*******)
+(* END *)
+(*******)
+
+(************)
+(* ROTATION *)
+(************)
+let rotate img screen tempFile pause display :unit =
+  begin
+    Utils.printTitle "ROTATION"; print_string "------> Start\n";
+    let t = Sdltimer.get_ticks () in
+
+    (* processing *)
+    img#load tempFile;
+    let booleanMatrix = Convert.matrixBool_of_image img 0.5 in   
+    let angle = Rotation.hough booleanMatrix in
+    Printf.printf "\nAngle = %f °" angle;
+    Printf.printf "\nAngle = %f rad" (Utils.degreeToRadian angle);
+    print_newline (); 
+    let booleanMatrix = Rotation.bilinearRotation 
+        booleanMatrix 
+        angle in  
+    Segm.deleteBlacksAfterBiRotation booleanMatrix angle;
+    let img = Convert.image_of_matrixBool booleanMatrix in
+
+    (* options *)
+    if display then img#render screen;
+    if (tempFile <> "null") then img#saveBmp tempFile;
+    
+    Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+    print_newline ();
+    if pause then Utils.pause ();
+  end
+  
+(*******)
+(* END *)
+(*******)
+
+
+(******************)
+(* LINE DETECTION *)
+(******************)
+(* Return : linesVect  *)
+let linesDetection img screen tempFile pause display =
+  begin
+    Utils.printTitle "LINES DETECTION"; print_string "------> Start\n";
+    let t = Sdltimer.get_ticks () in
+
+    (* processing *)
+    img#load tempFile;
+    let imgTemp = img in
+    let booleanMatrix = Convert.matrixBool_of_image img 0.5 in
+    let linesVect = Segm.travelAllRight img booleanMatrix true in
+
+    (* options *)
+    if display then img#render screen;
+    if (tempFile <> "null") then imgTemp#saveBmp tempFile;
+
+    Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+    print_newline ();
+    if pause then Utils.pause ();
+    linesVect
+  end
+(**** ***)
+(* END *)
+(*******)
+
+(******************)
+(* CHAR DETECTION *)
+(******************)
+(* Return : charArray  *)
+let charDetection img screen linesVect tempFile pause display =
+  begin
+    Utils.printTitle "CHAR DETECTION"; print_string "------> Start\n";
+    let t = Sdltimer.get_ticks () in
+
+    (* processing *)
+    img#load tempFile;
+    let imgTemp = img in
+    let booleanMatrix = Convert.matrixBool_of_image img 0.5 in
+    let mediumLineHeight = Segm.mediumHeightOfLineVect linesVect in
+    let vectOfLinesOfCharMatrix = ref [] in
+    for i = 0 to (Array.length linesVect) - 1 do 
+      let (a,b,c,d) = linesVect.(i) in
+      let lineMatrix = Convert.matrixOfMatrix (a,b,c,d) booleanMatrix in
+      if not(Segm.isHereBlacksUseless lineMatrix mediumLineHeight) then
+        begin
+          Segm.cleanMatrixDots lineMatrix;
+          if display then
+            begin
+              let img = Convert.image_of_matrixBool lineMatrix in
+              img#render screen;
+            end;
+          
+          let vectOfCharMatrix = Segm.findElmts lineMatrix in
+          vectOfLinesOfCharMatrix := vectOfCharMatrix :: !vectOfLinesOfCharMatrix;
+        end
+    done;
+    let charList = ref [] in
+    for i = 0 to (List.length !vectOfLinesOfCharMatrix) - 1 do
+      let vectOfCharMatrix = List.nth !vectOfLinesOfCharMatrix i in
+      for j = 0 to (List.length vectOfCharMatrix) - 1 do
+        let matrix = List.nth vectOfCharMatrix j in
+        charList := matrix :: !charList;
+        if display then
+          begin
+            let img = Convert.image_of_matrixBool matrix in
+            img#render screen;
+          end      
+      done
+    done;  
+
+    (* options *)
+    if display then imgTemp#render screen;
+    if (tempFile <> "null") then imgTemp#saveBmp tempFile;
+
+    Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
+    print_newline ();
+    if pause then Utils.pause ();
+    Array.of_list !charList
+  end
+(*******)
+(* END *)
+(*******)
+
+
+let processAll img screen pause display filename =
+  (* (*http://tech-algorithm.com/articles/bilinear-image-scaling/*)
+  img#load filename;
+  img#render screen;
+    if pause then Utils.pause (); 
+  let booleanMatrix = Convert.matrixBool_of_image img 0.9 in
+  let img = Convert.image_of_matrixBool booleanMatrix in
+  img#render screen;
+    if pause then Utils.pause ();
+  let (w, h) = booleanMatrix#getDims in
+  let ratio = w / h in
+  let booleanMatrix = Matrix.resize booleanMatrix (ratio * 500) 500   in
+  let img = Convert.image_of_matrixBool booleanMatrix in
+  img#render screen;
+    if pause then Utils.pause ();*)
+
+  let tempFile = "thumbs/" ^ filename in
+  print_string tempFile;
+  greyscale img screen filename tempFile pause display;
+  binarize img screen tempFile pause display;
+  rotate img screen tempFile pause display;
+  let linesVect = linesDetection img screen tempFile pause display in
+  let charArray = charDetection img screen linesVect tempFile pause display in
+  charArray
 (*
-	Utils.printTitle "CONTRAST HISTOGRAM EQUALIZATION";
-  print_string "------> Start\n";
-  let t = Sdltimer.get_ticks () in
-
-	Treatment.histEqualization greyMatrix;
-  let img = Convert.image_of_matrixGrey greyMatrix in
-
-  img#render screen;
-  Sdlvideo.flip screen;
-  
-  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-  print_newline ();
-  if (stepByStep) then Utils.pause ();
-*)
-
 
   Utils.printTitle "BINARIZATION";
   print_string "------> Start\n";
   let t = Sdltimer.get_ticks () in
+
 
   let threshold = Treatment.getThreshold greyMatrix in
   Printf.printf "\n Threshold = %f" threshold;
@@ -90,6 +261,7 @@ let processAll img screen stepByStep =
   print_string "------> Start\n";
   let t = Sdltimer.get_ticks () in
 
+
   let angle = Rotation.hough booleanMatrix in
 
   Printf.printf "\nAngle = %f °" angle;
@@ -99,34 +271,15 @@ let processAll img screen stepByStep =
   let booleanMatrix = Rotation.bilinearRotation 
         booleanMatrix 
         angle in
+  
+  Segm.deleteBlacksAfterBiRotation booleanMatrix angle;
   let img = Convert.image_of_matrixBool booleanMatrix in
   img#render screen;
   
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
   print_newline ();
   if (stepByStep) then Utils.pause ();
-(*
-      Utils.printTitle "MEDIAN FILTER";
-      print_string "------> Start\n";
-      let t = Sdltimer.get_ticks () in
 
-      let greyMatrix = Convert.matrixGrey_of_booleanMatrix booleanMatrix in
-      Treatment.relaxedMedianFilter greyMatrix;
-      let img = Convert.image_of_matrixGrey greyMatrix in
-
-      img#render screen;
-
-      Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-      print_newline ();
-      if (stepByStep) then Utils.pause ();
-
-  *)
-(*
-  Segm.deleteBlacksAfterBiRotation booleanMatrix angle;
-  *)
-  let img = Convert.image_of_matrixBool booleanMatrix in
-  img#render screen;
-  if (stepByStep) then Utils.pause ();
 
   Utils.printTitle "LINES DETECTION";
   print_string "------> Start\n";
@@ -140,36 +293,43 @@ let processAll img screen stepByStep =
   print_newline ();
   if (stepByStep) then Utils.pause ();
 
+  let mediumLineHeight = Segm.mediumHeightOfLineVect linesVect in
 
   Utils.printTitle "CHAR DETECTION";
+
+
   print_string "------> Start\n";
   let t = Sdltimer.get_ticks () in
 
   let vectOfLinesOfCharMatrix = ref [] in
   for i = 0 to (Array.length linesVect) - 1 do 
-    let (a,b,c,d) = linesVect.(i) in (*
-    Utils.printArgs "(yMin, yMax, xMin, xMax)" (a::b::c::d::[]); *)
+    let (a,b,c,d) = linesVect.(i) in
     let lineMatrix = Convert.matrixOfMatrix (a,b,c,d) booleanMatrix in
-    Segm.cleanMatrixDots lineMatrix;
-    
-    let img = Convert.image_of_matrixBool lineMatrix in
-    img#render screen;
-
-    let vectOfCharMatrix = Segm.findElmts lineMatrix in(*
-    for i = 0 to List.length vectOfCharMatrix - 1 do
-      let img = Convert.image_of_matrixBool lineMatrix in
-      img#render screen;
-    done;*)
-    
-    vectOfLinesOfCharMatrix := vectOfCharMatrix :: !vectOfLinesOfCharMatrix;
+    if not(Segm.isHereBlacksUseless lineMatrix mediumLineHeight) then
+      begin
+        Segm.cleanMatrixDots lineMatrix;
+        if lineAndCharDisplay then
+          begin
+            let img = Convert.image_of_matrixBool lineMatrix in
+            img#render screen;
+          end;
+        
+        let vectOfCharMatrix = Segm.findElmts lineMatrix in
+        vectOfLinesOfCharMatrix := vectOfCharMatrix :: !vectOfLinesOfCharMatrix;
+      end
   done;
-  
+  let charArray = ref [] in
   for i = 0 to (List.length !vectOfLinesOfCharMatrix) - 1 do
     let vectOfCharMatrix = List.nth !vectOfLinesOfCharMatrix i in
     for j = 0 to (List.length vectOfCharMatrix) - 1 do
-      let img = Convert.image_of_matrixBool (List.nth vectOfCharMatrix j) in
-      img#render screen;
-    done    
+      let matrix = List.nth vectOfCharMatrix j in
+      charArray := matrix :: !charArray;
+      if lineAndCharDisplay then
+        begin
+          let img = Convert.image_of_matrixBool matrix in
+          img#render screen;
+        end      
+    done
   done;
   
 
@@ -178,21 +338,4 @@ let processAll img screen stepByStep =
   Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
   print_newline ();
   if (stepByStep) then Utils.pause ();
-
-
-
-
-
-(*
-  Utils.printTitle "RLSA";
-  print_string "------> Start\n";
-  let t = Sdltimer.get_ticks () in
-  let booleanMatrix = Segm.getPhrases booleanMatrix in
-  let img = Convert.image_of_matrixBool booleanMatrix in
-
-  img#render screen;
-  Sdlvideo.flip screen;
-  
-  Printf.printf "\n<------ Ended in %d ms\n" (Sdltimer.get_ticks () - t);
-  print_newline ();
-  if (stepByStep) then Utils.pause ();*)
+  Array.of_list !charArray*)

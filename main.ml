@@ -39,17 +39,17 @@ let main () =
     let percent = ref 1 in
     let filename = ref "" in
     let specs = [
-      "--train", Arg.Set_int train, "train the neural network";
-      "--percent", Arg.Set_int percent, "coucou :)";
-      "-f", Arg.Set_string filename, "Fuck the bocal";
-    ] in Arg.parse specs (fun _ -> ()) "usage: call 911";
+      "--train", Arg.Set_int train, "Train The Neural Network";
+      "--percent", Arg.Set_int percent, "Neural Network Progress";
+      "-f", Arg.Set_string filename, "Specify Your Filename";
+    ] in Arg.parse specs (fun _ -> ()) "Usage: Call 911";
 
 
     (* let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:16 [`HWSURFACE] in *)
     (* ignore (Sys.command "i3-msg floating enable"); (\* forget this... *\) *)
 
 
-    let screen = Sdlvideo.set_video_mode ~w:640 ~h:800 ~bpp:16 [`HWSURFACE] and
+    let screen = Sdlvideo.set_video_mode ~w:600 ~h:600 ~bpp:16 [`HWSURFACE] and
       img = new Image.image 0 0 in
 
     img#load !filename;
@@ -58,7 +58,8 @@ let main () =
     if !train <> 0 then
         Utils.debugTimer "training" (fun () -> Ocr.train !train !percent);
 
-    Preproc.processAll img screen true;
+    Preproc.processAll img screen true true !filename;
+
   end
 
 let _ =
