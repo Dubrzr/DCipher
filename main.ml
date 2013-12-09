@@ -55,15 +55,7 @@ let main () =
     img#load !filename;
     
 
-    if !train <> 0 then
-        Utils.debugTimer "training" (fun () -> Ocr.train !train !percent);
-
     Preproc.processAll img screen true true !filename;
-
-    let screen = Sdlvideo.set_video_mode ~w:640 ~h:480 ~bpp:32 [`HWSURFACE] in
-    let img = new Image.image 0 0 in
-    img#load !filename;
-    Preproc.processAll img screen true;
   end
 
 let _ =
